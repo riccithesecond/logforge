@@ -91,20 +91,17 @@ async def ship_to_fried_plantains(
     async with httpx.AsyncClient(
         verify=True,                   # never verify=False
         follow_redirects=False,        # a redirect could forward FP_API_TOKEN to another host
-        timeout=httpx.Timeout(connect=10.0, read=120.0, write=30.0, pool=5.0),
+        timeout=httpx.Timeout(120.0, connect=10.0),
         limits=httpx.Limits(max_connections=5, max_keepalive_connections=2),
     ) as client:
         with open(path, "rb") as f:
             resp = await client.post(
                 url,
-                headers={
-                    "Authorization": f"Bearer {fp_api_token}",
-                    "X-Source-Type": source_type,
-                    "X-Table-Name": table_name,
-                    "Content-Encoding": "gzip",
-                    "Content-Type": "application/x-ndjson",
-                },
-                content=f.read(),
+                headers={"Authorization": f"Bearer {fp_api_token}"},
+                # table and source are query parameters in the FastAPI endpoint,
+                # not Form() fields — send them in the URL, not the multipart body.
+                params={"source": "mde_native", "table": table_name},
+                files={"file": (path.name, f, "application/x-ndjson")},
             )
 
     if resp.status_code not in (200, 201, 202):
@@ -122,19 +119,26 @@ async def ship_to_fried_plantains(
 
 
 def _table_to_source_type(table_name: str) -> str:
-    """Map fried-plantains table names to ingest source type identifiers."""
+    """Map fried-plantains table names to SOURCE_TYPES keys from backend/parsers/__init__.py."""
     mapping = {
-        "DeviceProcessEvents": "mde",
-        "DeviceNetworkEvents": "mde",
-        "DeviceFileEvents": "mde",
-        "DeviceLogonEvents": "mde",
-        "DeviceRegistryEvents": "mde",
+        "DeviceProcessEvents": "defender",
+        "DeviceNetworkEvents": "defender",
+        "DeviceFileEvents": "defender",
+        "DeviceLogonEvents": "defender",
+        "DeviceRegistryEvents": "defender",
+        "DeviceEvents": "defender",
+        "DeviceAlertEvents": "defender",
         "ProofpointMessageEvents": "proofpoint_tap",
         "ProofpointClickEvents": "proofpoint_tap",
-        "AbnormalThreatEvents": "abnormal",
-        "AbnormalCaseEvents": "abnormal",
-        "ZscalerWebEvents": "zscaler",
-        "EntraSignInLogs": "entra",
-        "EntraAuditLogs": "entra",
+        "AbnormalThreatEvents": "abnormal_threats",
+        "AbnormalCaseEvents": "abnormal_cases",
+        "ZscalerWebEvents": "zscaler_web",
+        "ZscalerDnsEvents": "zscaler_dns",
+        "AWSCloudTrailEvents": "cloudtrail",
+        "CloudflareHttpEvents": "cloudflare",
+        "CloudflareFirewallEvents": "cloudflare",
+        "CloudflareDnsEvents": "cloudflare",
+        "IdentityLogonEvents": "defender",
+        "CloudAppEvents": "defender",
     }
-    return mapping.get(table_name, "generic")
+    return mapping.get(table_name, "defender")
