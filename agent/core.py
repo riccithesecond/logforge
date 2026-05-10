@@ -190,6 +190,15 @@ async def run_agent(
         if agent.finalized:
             break
 
+        # Show tool calls in real time so the user can see what the agent is doing
+        for block in response.content:
+            if block.type == "tool_use":
+                click.echo(f"  >> {block.name}({list(block.input.keys())})")
+            elif block.type == "text" and block.text.strip():
+                # Encode to ASCII with replacement so Windows cp1252 consoles don't crash
+                safe = block.text.strip()[:120].encode("ascii", errors="replace").decode("ascii")
+                click.echo(f"  [thinking] {safe}")
+
         if response.stop_reason == "end_turn":
             # Claude stopped without calling finalize — this is unexpected
             logger.warning(

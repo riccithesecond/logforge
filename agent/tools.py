@@ -326,6 +326,14 @@ def _tool_finalize(inp: dict, agent) -> dict:
     if agent.finalized:
         return {"error": "finalize() has already been called for this run"}
 
+    if not agent.generated_tables:
+        return {
+            "error": (
+                "No rows have been generated yet. "
+                "Call add_log_rows() to generate log rows before finalizing."
+            )
+        }
+
     unvalidated = set(agent.generated_tables.keys()) - agent.validated_tables
     if unvalidated:
         return {
