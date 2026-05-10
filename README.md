@@ -209,6 +209,7 @@ python main.py generate [OPTIONS]
     -s, --scenario TEXT         Path to scenario YAML or freeform description (required)
     -c, --cmdb TEXT             Path to CMDB JSON [default: cmdb/environment.json]
     -t, --threat-intel TEXT     Path to threat intel report (.txt, .md, .pdf)
+    -d, --days INT              Days the attack spans ending today (prompted if omitted)
     --fp-url TEXT               fried-plantains URL (overrides .env)
     --ship                      Ship to fried-plantains after generation
     --skip-output-validation    Skip injection scan on output rows

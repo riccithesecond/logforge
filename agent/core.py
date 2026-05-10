@@ -142,6 +142,8 @@ async def run_agent(
     api_key: str,
     run_id: str,
     skip_output_validation: bool = False,
+    date_from: str | None = None,
+    date_to: str | None = None,
 ) -> dict:
     """
     Entry point for a logforge agent run. Loads schemas, builds the user message,
@@ -155,7 +157,7 @@ async def run_agent(
         skip_output_validation=skip_output_validation,
     )
 
-    user_message = _build_user_message(scenario_input, threat_intel_path, agent)
+    user_message = _build_user_message(scenario_input, threat_intel_path, agent, date_from, date_to)
     client = anthropic.Anthropic(api_key=api_key)
     messages = [{"role": "user", "content": user_message}]
 
@@ -256,6 +258,8 @@ def _build_user_message(
     scenario_input: str,
     threat_intel_path: str | None,
     agent: LogForgeAgent,
+    date_from: str | None = None,
+    date_to: str | None = None,
 ) -> str:
     """
     Constructs the user message passed to Claude. Scenarios and threat intel are
@@ -267,6 +271,17 @@ def _build_user_message(
     cmdb = agent.cmdb
     from datetime import datetime, timezone
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    effective_date_to = date_to or today
+    effective_date_from = date_from or today
+    if effective_date_from == effective_date_to:
+        date_range_str = f"All Timestamps must fall on {effective_date_to} (today)."
+    else:
+        date_range_str = (
+            f"The attack spans {effective_date_from} through {effective_date_to} (today). "
+            f"Spread events realistically across this range — early stages on {effective_date_from}, "
+            f"later kill-chain stages progressing toward {effective_date_to}. "
+            f"BAU events should be distributed across all days in the range."
+        )
     parts.append(
         f"<environment_summary>\n"
         f"Organization: {cmdb.organization}\n"
@@ -274,7 +289,7 @@ def _build_user_message(
         f"Servers: {len(cmdb.servers)}\n"
         f"Domain: {cmdb.network.domain} ({cmdb.network.netbios_domain})\n"
         f"Registered tables: {', '.join(cmdb.infrastructure.registered_tables) or 'loaded from API'}\n"
-        f"Today's date: {today} — all generated Timestamps must fall on or before this date.\n"
+        f"Date range: {effective_date_from} to {effective_date_to}. {date_range_str}\n"
         f"</environment_summary>"
     )
 
