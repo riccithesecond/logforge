@@ -1,6 +1,6 @@
 .env
 cmdb/environment.json
-output/
+output/runs/
 *.parquet
 *.ndjson.gz
 __pycache__/
