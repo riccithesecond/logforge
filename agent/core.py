@@ -265,6 +265,8 @@ def _build_user_message(
 
     # Provide CMDB summary as context (counts only — no PII in the message)
     cmdb = agent.cmdb
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     parts.append(
         f"<environment_summary>\n"
         f"Organization: {cmdb.organization}\n"
@@ -272,6 +274,7 @@ def _build_user_message(
         f"Servers: {len(cmdb.servers)}\n"
         f"Domain: {cmdb.network.domain} ({cmdb.network.netbios_domain})\n"
         f"Registered tables: {', '.join(cmdb.infrastructure.registered_tables) or 'loaded from API'}\n"
+        f"Today's date: {today} — all generated Timestamps must fall on or before this date.\n"
         f"</environment_summary>"
     )
 

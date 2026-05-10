@@ -27,7 +27,7 @@ Scenario + CMDB
 ┌─────────────────────────────────────────────────────┐
 │                   agent/core.py                     │
 │                                                     │
-│  Claude (claude-sonnet-4-20250514)                  │
+│  Claude (model set via CLAUDE_MODEL in .env)        │
 │    reasons about the scenario                       │
 │    decides what to generate                         │
 │    calls tools to execute mechanical work           │
@@ -114,7 +114,7 @@ Gap analysis is not optional — it ships in every run's manifest alongside the 
 **1. Set up the environment**
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/riccithesecond/logforge.git
 cd logforge
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
@@ -240,7 +240,7 @@ python main.py gaps
 
 **Output injection scanning.** Generated rows are scanned for patterns that could be interpreted as injection attacks against fried-plantains before shipping (`'; DROP`, `OR 1=1`, `../`, `${`, `<script`, etc.). The `--skip-output-validation` flag allows override for scenarios that intentionally generate exploit strings — it always prints a warning to stderr.
 
-**HTTP security.** The httpx client in `output/shipper.py` is always configured with `verify=True` and `follow_redirects=False`. Redirect following is permanently disabled because a redirect could forward `FP_API_TOKEN` to an attacker-controlled host. Both settings are tested by `test_httpx_client_no_redirects`.
+**HTTP security.** The httpx client in `output/shipper.py` is always configured with `verify=True` and `follow_redirects=False`. Redirect following is permanently disabled because a redirect could forward `FP_API_TOKEN` to an attacker-controlled host. Both settings are tested by `test_httpx_client_no_redirects`. Files are uploaded as multipart form data; `table` and `source` are sent as URL query parameters (not form fields) to match the fried-plantains ingest API signature.
 
 **Secret hygiene.** `ANTHROPIC_API_KEY` and `FP_API_TOKEN` are loaded exclusively from `.env` via pydantic-settings. `os.environ` is never read directly. Secrets never appear in log output, `click.echo()`, or exception messages. The CMDB may contain real usernames, emails, and IPs — only counts are logged, never field values.
 
