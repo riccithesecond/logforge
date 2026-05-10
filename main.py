@@ -5,7 +5,7 @@ validate_input_file() checks existence, extension, size, and path containment.
 import asyncio
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import click
@@ -76,7 +76,11 @@ def cli():
     "--skip-output-validation", is_flag=True, default=False,
     help="Skip injection check on output rows (use for exploit-string scenarios)",
 )
-def generate(scenario, cmdb, threat_intel, fp_url, ship, skip_output_validation):
+@click.option(
+    "--days", "-d", default=None, type=int,
+    help="Number of days the attack spans (ending today). Prompted if omitted.",
+)
+def generate(scenario, cmdb, threat_intel, fp_url, ship, skip_output_validation, days):
     """
     Generate synthetic logs for a scenario.
 
@@ -98,6 +102,17 @@ def generate(scenario, cmdb, threat_intel, fp_url, ship, skip_output_validation)
     if threat_intel:
         validated_ti = validate_input_file(threat_intel, [".txt", ".md", ".pdf"])
 
+    if days is None:
+        days = click.prompt(
+            "How many days should the attack span? (1 = today only)",
+            default=1,
+            type=click.IntRange(1, 365),
+        )
+
+    today = datetime.now(timezone.utc).date()
+    date_to = today.isoformat()
+    date_from = (today - timedelta(days=days - 1)).isoformat()
+
     effective_fp_url = fp_url or settings.FP_BASE_URL
     run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
@@ -110,6 +125,8 @@ def generate(scenario, cmdb, threat_intel, fp_url, ship, skip_output_validation)
             ship=ship,
             skip_output_validation=skip_output_validation,
             run_id=run_id,
+            date_from=date_from,
+            date_to=date_to,
         )
     )
 
@@ -122,10 +139,13 @@ async def _run_generate(
     ship: bool,
     skip_output_validation: bool,
     run_id: str,
+    date_from: str,
+    date_to: str,
 ) -> None:
     from agent.core import run_agent
 
     click.echo(f"Starting logforge run {run_id}")
+    click.echo(f"Date range: {date_from} to {date_to}")
     manifest = await run_agent(
         scenario_input=scenario_input,
         cmdb_path=cmdb_path,
@@ -136,6 +156,8 @@ async def _run_generate(
         api_key=settings.ANTHROPIC_API_KEY,
         run_id=run_id,
         skip_output_validation=skip_output_validation,
+        date_from=date_from,
+        date_to=date_to,
     )
 
     click.echo(f"\nRun complete: {run_id}")
