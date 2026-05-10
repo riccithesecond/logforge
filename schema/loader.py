@@ -21,7 +21,7 @@ async def load_fp_schema(fp_base_url: str, api_token: str) -> dict:
         async with httpx.AsyncClient(
             verify=True,
             follow_redirects=False,
-            timeout=httpx.Timeout(connect=10.0, read=30.0),
+            timeout=httpx.Timeout(30.0, connect=10.0),
         ) as client:
             resp = await client.get(
                 f"{fp_base_url}/api/v1/schema/tables",
