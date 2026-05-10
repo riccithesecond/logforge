@@ -1,0 +1,32 @@
+name: AWS privilege escalation via stolen developer credentials
+description: >
+  Developer credentials stolen via phishing. Attacker enumerates IAM permissions,
+  creates a new admin user, and escalates to full administrative access.
+  CloudTrail logs capture the escalation chain.
+mitre_techniques: [T1078.004, T1580, T1098.001]
+actor_type: external
+initial_access_vector: phishing
+duration_hours: 3
+bau_ratio: 0.90
+target_users: [jsmith]
+steps:
+  - step_number: 1
+    description: Attacker uses stolen AWS credentials — anomalous console login from new IP
+    mitre_technique: T1078.004
+    actor: attacker
+    target: jsmith
+    tables_affected: [EntraSignInLogs]
+    time_offset_minutes: 0
+    requires_cmdb_entity: true
+  - step_number: 2
+    description: Attacker calls IAM GetAccountAuthorizationDetails to enumerate permissions
+    mitre_technique: T1580
+    actor: attacker
+    tables_affected: []
+    time_offset_minutes: 5
+  - step_number: 3
+    description: Attacker creates new IAM admin user and attaches AdministratorAccess policy
+    mitre_technique: T1098.001
+    actor: attacker
+    tables_affected: []
+    time_offset_minutes: 12

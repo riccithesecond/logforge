@@ -1,0 +1,24 @@
+name: Insider data exfiltration via USB and personal cloud upload
+description: >
+  Finance employee copies sensitive spreadsheets to USB drive before resignation.
+  Also uploads files to personal Dropbox via corporate proxy. DLP would flag
+  both vectors — Zscaler proxy logs capture the cloud upload.
+mitre_techniques: [T1052.001, T1567.002]
+actor_type: insider
+initial_access_vector: legitimate_access
+duration_hours: 4
+bau_ratio: 0.85
+target_users: [jsmith]
+steps:
+  - step_number: 1
+    description: Employee copies financial spreadsheets to USB removable media
+    mitre_technique: T1052.001
+    actor: jsmith
+    tables_affected: [DeviceFileEvents]
+    time_offset_minutes: 0
+  - step_number: 2
+    description: Employee uploads files to personal Dropbox via Zscaler proxy
+    mitre_technique: T1567.002
+    actor: jsmith
+    tables_affected: [ZscalerWebEvents, DeviceNetworkEvents]
+    time_offset_minutes: 45
