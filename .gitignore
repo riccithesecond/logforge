@@ -1,0 +1,11 @@
+.env
+cmdb/environment.json
+output/
+*.parquet
+*.ndjson.gz
+__pycache__/
+.venv/
+*.pyc
+.pytest_cache/
+*.egg-info/
+schema/cache/
