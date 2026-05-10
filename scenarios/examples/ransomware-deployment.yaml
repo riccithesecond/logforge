@@ -1,0 +1,42 @@
+name: Ransomware deployment via phishing to lateral movement
+description: >
+  Phishing delivers malicious attachment. Macro executes encoded PowerShell.
+  C2 beacon established. Lateral movement via PsExec. Ransomware encrypts fileserver.
+mitre_techniques: [T1566.001, T1059.001, T1071.001, T1021.002, T1486]
+actor_type: external
+initial_access_vector: phishing
+duration_hours: 8
+bau_ratio: 0.93
+target_users: [jsmith]
+steps:
+  - step_number: 1
+    description: Phishing email with malicious Word attachment delivered
+    mitre_technique: T1566.001
+    actor: attacker
+    target: jsmith
+    tables_affected: [ProofpointMessageEvents]
+    time_offset_minutes: 0
+  - step_number: 2
+    description: User opens attachment — macro executes encoded PowerShell
+    mitre_technique: T1059.001
+    actor: jsmith
+    tables_affected: [DeviceProcessEvents, DeviceFileEvents]
+    time_offset_minutes: 14
+  - step_number: 3
+    description: C2 beacon — outbound HTTPS to attacker infrastructure
+    mitre_technique: T1071.001
+    actor: jsmith
+    tables_affected: [DeviceNetworkEvents, ZscalerWebEvents]
+    time_offset_minutes: 15
+  - step_number: 4
+    description: Lateral movement to fileserver via PsExec
+    mitre_technique: T1021.002
+    actor: attacker
+    tables_affected: [DeviceNetworkEvents, DeviceLogonEvents, DeviceProcessEvents]
+    time_offset_minutes: 187
+  - step_number: 5
+    description: Ransomware encrypts fileserver shares
+    mitre_technique: T1486
+    actor: attacker
+    tables_affected: [DeviceFileEvents, DeviceProcessEvents]
+    time_offset_minutes: 203

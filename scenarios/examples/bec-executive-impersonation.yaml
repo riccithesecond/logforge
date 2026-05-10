@@ -1,0 +1,32 @@
+name: BEC executive impersonation via Proofpoint bypass
+description: >
+  Attacker sends spoofed CFO email to AP clerk. Proofpoint delivers with high
+  impostor score. Abnormal flags post-delivery. Attacker follows up requesting
+  wire transfer. AP clerk clicks a link tracked by TAP.
+mitre_techniques: [T1566.003, T1534, T1657]
+actor_type: external
+initial_access_vector: phishing
+duration_hours: 6
+bau_ratio: 0.95
+target_users: [jsmith]
+steps:
+  - step_number: 1
+    description: Spoofed CFO email delivered to AP clerk by Proofpoint
+    mitre_technique: T1566.003
+    actor: attacker
+    target: jsmith
+    tables_affected: [ProofpointMessageEvents, AbnormalThreatEvents]
+    time_offset_minutes: 0
+  - step_number: 2
+    description: AP clerk clicks link in email — TAP click event
+    mitre_technique: T1566.002
+    actor: jsmith
+    tables_affected: [ProofpointClickEvents]
+    time_offset_minutes: 23
+  - step_number: 3
+    description: Attacker sends follow-up wire transfer request
+    mitre_technique: T1657
+    actor: attacker
+    target: jsmith
+    tables_affected: [ProofpointMessageEvents, AbnormalThreatEvents, AbnormalCaseEvents]
+    time_offset_minutes: 95
