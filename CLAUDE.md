@@ -17,7 +17,7 @@ logforge:
 5. Outputs NDJSON files per table, a Parquet version, and a structured manifest
 6. Optionally ships the output directly to fried-plantains via the ingest API
 
-logforge is powered by Claude (claude-sonnet-4-20250514) as its reasoning core.
+logforge is powered by Claude (claude-sonnet-5-5) as its reasoning core.
 The agent loop uses the Anthropic SDK with tool use — Claude plans and reasons,
 tools execute the mechanical work. This is a portfolio project; code quality and
 security posture matter as much as functionality.
@@ -29,7 +29,7 @@ security posture matter as much as functionality.
 | Component | Technology |
 |---|---|
 | Language | Python 3.11+ |
-| Agent core | Anthropic SDK — claude-sonnet-4-20250514 with tool use |
+| Agent core | Anthropic SDK — claude-sonnet-5-5 with tool use |
 | Data models | Pydantic v2 |
 | Parquet output | PyArrow |
 | NDJSON output | stdlib json + gzip |

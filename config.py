@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str
     FP_BASE_URL: str = "http://localhost:8000"
     FP_API_TOKEN: str = ""
-    CLAUDE_MODEL: str = "claude-sonnet-4-20250514"
+    CLAUDE_MODEL: str = "claude-sonnet-5-5"
 
     @field_validator("ANTHROPIC_API_KEY")
     @classmethod

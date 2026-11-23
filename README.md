@@ -96,13 +96,12 @@ Coverage gaps from: 20240115_143022
            internal Teams messages, so an attacker can use Teams for C2 and
            lateral movement without triggering any detection.
 
-  Step:    Attacker calls IAM GetAccountAuthorizationDetails
-  MITRE:   T1580
-  Missing: AWSCloudTrailEvents (AWS CloudTrail)
-  Tools:   AWS CloudTrail, AWS Security Hub
-  Impact:  Cloud credential enumeration leaves no trace — CloudTrail is not
-           ingested into fried-plantains, so cloud-based privilege escalation
-           reconnaissance is a blind spot.
+  Step:    Attacker uploads stolen data to an external file-sharing service
+  MITRE:   T1567
+  Missing: SaaSAuditEvents (CASB or SaaS audit log)
+  Tools:   CASB, SaaS audit-log export
+  Impact:  Uploads to personal cloud storage leave no trace in any registered
+           table, so this exfiltration path is a blind spot.
 ```
 
 Gap analysis is not optional — it ships in every run's manifest alongside the generated logs.
